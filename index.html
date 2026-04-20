@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SV — Business Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #080810;
+    --bg-navy: #0B1426;
+    --bg-card: #1A1A2E;
+    --bg-mid: #0F0F1A;
+    --purple: #8B3FD9;
+    --purple-light: #A855F7;
+    --cyan: #00FFFF;
+    --cyan-dim: #00CCCC;
+    --white: #FFFFFF;
+    --muted: #9CA3AF;
+    --green: #22C55E;
+    --yellow: #FBBF24;
+    --red: #EF4444;
+    --orange: #F97316;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg-dark);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── HEADER ── */
+  .hero {
+    background: linear-gradient(135deg, #0B1426 0%, #1A0A2E 50%, #080810 100%);
+    border-bottom: 1px solid rgba(139,63,217,0.4);
+    padding: 60px 40px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(139,63,217,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .hero h1 span { color: var(--purple-light); }
+  .hero-sub {
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 560px;
+    margin: 0 auto 28px;
+  }
+  .hero-meta {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .hero-stat {
+    text-align: center;
+  }
+  .hero-stat-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--cyan);
+  }
+  .hero-stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    background: var(--bg-navy);
+    border-bottom: 1px solid rgba(139,63,217,0.2);
+    padding: 0 40px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 16px 20px;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .nav a:hover { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+  .section { padding: 60px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .section-last { padding: 60px 0; }
+
+  .section-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--purple-light);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(20px, 3vw, 30px);
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+  .section-intro {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 700px;
+    margin-bottom: 40px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid rgba(139,63,217,0.2);
+    border-radius: 12px;
+    padding: 28px;
+  }
+  .card-cyan { border-color: rgba(0,255,255,0.2); }
+  .card-green { border-color: rgba(34,197,94,0.2); }
+  .card-yellow { border-color: rgba(251,191,36,0.2); }
+  .card-red { border-color: rgba(239,68,68,0.2); }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .container { padding: 0 20px; }
+    .hero { padding: 40px 20px 36px; }
+  }
+
+  .card-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .card p { color: var(--muted); font-size: 14px; margin-bottom: 8px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card strong { color: var(--white); }
+
+  /* ── STATUS BADGES ── */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .badge-green { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); border: 1px solid rgba(251,191,36,0.3); }
+  .badge-red { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-purple { background: rgba(139,63,217,0.15); color: var(--purple-light); border: 1px solid rgba(139,63,217,0.3); }
+  .badge-cyan { background: rgba(0,255,255,0.1); color: var(--cyan); border: 1px solid rgba(0,255,255,0.3); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap { margin: 8px 0; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .progress-label strong { color: var(--white); }
+  .progress-bar { background: rgba(255,255,255,0.08); border-radius: 4px; height: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--purple), var(--cyan)); }
+
+  /* ── TIMELINE ── */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 8px; bottom: 8px; width: 1px; background: rgba(139,63,217,0.3); }
+  .timeline-item { position: relative; margin-bottom: 28px; }
+  .timeline-item::before { content: ''; position: absolute; left: -24px; top: 7px; width: 10px; height: 10px; border-radius: 50%; background: var(--purple); border: 2px solid var(--bg-dark); }
+  .timeline-item.done::before { background: var(--green); }
+  .timeline-item.current::before { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+  .timeline-item.pending::before { background: var(--bg-card); border-color: var(--muted); }
+  .timeline-date { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .timeline-title { font-weight: 600; color: var(--white); margin-bottom: 4px; }
+  .timeline-body { font-size: 13px; color: var(--muted); }
+
+  /* ── BRAND BLOCKS ── */
+  .brand-block {
+    background: var(--bg-card);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(139,63,217,0.2);
+  }
+  .brand-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .brand-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .brand-tagline { font-size: 13px; color: var(--muted); }
+  .brand-body { padding: 20px 24px; }
+  .brand-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+  .brand-row:last-child { border-bottom: none; }
+  .brand-row-label { color: var(--muted); }
+  .brand-row-value { color: var(--white); font-weight: 500; text-align: right; max-width: 60%; }
+  .brand-hf .brand-header { background: linear-gradient(135deg, rgba(139,63,217,0.2), rgba(0,255,255,0.08)); }
+  .brand-th .brand-header { background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(0,255,255,0.05)); }
+  .brand-sv .brand-header { background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(139,63,217,0.1)); }
+
+  /* ── PIPELINE ── */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .pipe-step {
+    flex: 1;
+    min-width: 120px;
+    background: var(--bg-card);
+    border: 1px solid rgba(139,63,217,0.2);
+    padding: 16px 12px;
+    text-align: center;
+    position: relative;
+  }
+  .pipe-step:first-child { border-radius: 10px 0 0 10px; }
+  .pipe-step:last-child { border-radius: 0 10px 10px 0; }
+  .pipe-step::after {
+    content: '→';
+    position: absolute;
+    right: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--purple-light);
+    font-size: 18px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .pipe-step:last-child::after { display: none; }
+  .pipe-icon { font-size: 22px; margin-bottom: 6px; }
+  .pipe-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--white); margin-bottom: 3px; }
+  .pipe-detail { font-size: 11px; color: var(--muted); }
+  .pipe-step.live { border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.05); }
+  .pipe-step.blocked { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.04); }
+  .pipe-step.partial { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.04); }
+
+  /* ── EMAIL CARDS ── */
+  .email-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(139,63,217,0.2);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .email-header {
+    background: linear-gradient(135deg, rgba(139,63,217,0.25), rgba(0,255,255,0.08));
+    padding: 18px 24px 14px;
+  }
+  .email-day { font-size: 11px; color: var(--cyan); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px; }
+  .email-name { font-family: 'Orbitron', monospace; font-size: 18px; font-weight: 700; }
+  .email-body { padding: 20px 24px; }
+  .email-row { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; margin-bottom: 10px; }
+  .email-row-label { color: var(--muted); min-width: 80px; }
+  .email-row-value { color: var(--white); }
+
+  /* ── ACTION ITEMS ── */
+  .action-item {
+    background: var(--bg-card);
+    border-left: 3px solid var(--yellow);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .action-item.critical { border-left-color: var(--red); }
+  .action-item.done { border-left-color: var(--green); opacity: 0.7; }
+  .action-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    min-width: 32px;
+    color: var(--yellow);
+  }
+  .action-item.critical .action-num { color: var(--red); }
+  .action-item.done .action-num { color: var(--green); }
+  .action-title { font-weight: 600; color: var(--white); margin-bottom: 4px; }
+  .action-body { font-size: 13px; color: var(--muted); }
+
+  /* ── REVENUE TABLE ── */
+  .rev-table { width: 100%; border-collapse: collapse; }
+  .rev-table th { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 10px 16px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .rev-table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; vertical-align: top; }
+  .rev-table tr:last-child td { border-bottom: none; }
+  .rev-table td:first-child { font-weight: 600; color: var(--white); }
+  .rev-table td:not(:first-child) { color: var(--muted); }
+  .rev-table .highlight td:first-child { color: var(--cyan); }
+
+  /* ── QUOTE ── */
+  .quote-block {
+    border-left: 3px solid var(--purple-light);
+    padding: 20px 28px;
+    background: rgba(139,63,217,0.07);
+    border-radius: 0 10px 10px 0;
+    margin: 24px 0;
+  }
+  .quote-text { font-size: 18px; font-style: italic; color: var(--white); line-height: 1.6; margin-bottom: 8px; }
+  .quote-attr { font-size: 12px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+
+  /* ── STAT ROW ── */
+  .stat-row { display: flex; gap: 16px; flex-wrap: wrap; margin: 20px 0; }
+  .stat-box {
+    flex: 1;
+    min-width: 140px;
+    background: var(--bg-mid);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 18px 20px;
+    text-align: center;
+  }
+  .stat-num { font-family: 'Orbitron', monospace; font-size: 26px; font-weight: 700; color: var(--cyan); }
+  .stat-label { font-size: 11px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 4px; }
+
+  /* ── UPDATED STAMP ── */
+  .updated {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 12px;
+    color: rgba(156,163,175,0.5);
+    letter-spacing: 2px;
+  }
+
+  /* ── SOCIAL TAGS ── */
+  .social-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: var(--white);
+    margin: 3px;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--bg-navy);
+    border-top: 1px solid rgba(139,63,217,0.2);
+    padding: 32px 40px;
+    text-align: center;
+  }
+  .footer-logo { font-family: 'Orbitron', monospace; font-size: 20px; font-weight: 900; color: var(--white); margin-bottom: 8px; }
+  .footer-logo span { color: var(--purple-light); }
+  .footer p { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     HERO
+════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-eyebrow">Source Vessel · Hybrid Funding · Built April 2026</div>
+  <h1>SV Business<br><span>Command Center</span></h1>
+  <p class="hero-sub">Everything you are building — your brands, your content engine, your campaigns, your pipeline — in one place. This is your operation.</p>
+  <div class="hero-meta">
+    <div class="hero-stat">
+      <div class="hero-stat-num">90</div>
+      <div class="hero-stat-label">Days Scripted</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">3</div>
+      <div class="hero-stat-label">Active Brands</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">3</div>
+      <div class="hero-stat-label">Weekly Emails</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">8</div>
+      <div class="hero-stat-label">Social Channels</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">37</div>
+      <div class="hero-stat-label">Videos Ready</div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#mission">Mission</a>
+  <a href="#brands">3 Brands</a>
+  <a href="#content">Content Engine</a>
+  <a href="#pipeline">Pipeline</a>
+  <a href="#email">Email</a>
+  <a href="#social">Social</a>
+  <a href="#status">Live Status</a>
+  <a href="#actions">Action Items</a>
+  <a href="#revenue">Revenue</a>
+  <a href="#roadmap">Roadmap</a>
+</nav>
+
+<!-- ════════════════════════════════════
+     MISSION
+════════════════════════════════════ -->
+<div id="mission" class="section">
+  <div class="container">
+    <div class="section-label">Section 01</div>
+    <div class="section-title">The Mission</div>
+    <p class="section-intro">What you are building, why it matters, and the thesis behind every piece of content.</p>
+
+    <div class="quote-block">
+      <div class="quote-text">"You do not need more information. You need more control."</div>
+      <div class="quote-attr">— SV Core Truth · Every script, every email, every piece of content comes back to this.</div>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title">The Vision</div>
+        <p><strong>A billion-dollar trading business</strong> built on content, community, and access to capital. You are not just a trader — you are building the system that funds and develops other traders.</p>
+      </div>
+      <div class="card card-cyan">
+        <div class="card-title">The Vehicle</div>
+        <p><strong>Hybrid Funding</strong> is the prop firm. <strong>Trade Hybrid</strong> is the community. <strong>SV / Suess Villiano</strong> is the personal brand that attracts both. Content is the engine that runs all three.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">The Flywheel</div>
+        <p>SV content builds trust → trust drives community → community buys challenge passes → funded traders generate revenue → revenue funds more content. <strong>It compounds.</strong></p>
+      </div>
+    </div>
+
+    <div style="margin-top: 32px;">
+      <div class="section-label" style="margin-bottom: 12px;">4-Pillar Content Philosophy (Repeating 14-Day Cycles)</div>
+      <div class="grid-4">
+        <div class="card">
+          <div class="card-title" style="color: var(--purple-light);">Mindset</div>
+          <p><strong>Days 01–14</strong><br>The internal game. Psychology. How elite traders actually think.</p>
+        </div>
+        <div class="card">
+          <div class="card-title" style="color: var(--cyan);">Discipline</div>
+          <p><strong>Days 15–28</strong><br>Rules, routines, and what separates funded traders from failed ones.</p>
+        </div>
+        <div class="card">
+          <div class="card-title" style="color: var(--green);">Strategy</div>
+          <p><strong>Days 29–42</strong><br>The chess game. Systems, edge, architecture of a trade plan.</p>
+        </div>
+        <div class="card">
+          <div class="card-title" style="color: var(--orange);">Reality</div>
+          <p><strong>Days 43–56</strong><br>The truth most coaches won't say. Raw, unfiltered, credible.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     3 BRANDS
+════════════════════════════════════ -->
+<div id="brands" class="section">
+  <div class="container">
+    <div class="section-label">Section 02</div>
+    <div class="section-title">Your Three Brands</div>
+    <p class="section-intro">Three distinct identities, one unified mission. Each brand has its own voice, audience, and content type — all connecting back to the same business.</p>
+
+    <div class="grid-3">
+      <!-- HYBRID FUNDING -->
+      <div class="brand-block brand-hf">
+        <div class="brand-header">
+          <div class="brand-name" style="color: var(--purple-light);">Hybrid Funding</div>
+          <div class="brand-tagline">Empowering Traders. Funding Potential.</div>
+        </div>
+        <div class="brand-body">
+          <div class="brand-row">
+            <span class="brand-row-label">Role</span>
+            <span class="brand-row-value">The prop firm. Challenge passes, payouts, funded accounts.</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">Website</span>
+            <span class="brand-row-value">hybridfunding.co</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">Promo Code</span>
+            <span class="brand-row-value" style="color: var(--cyan);">UNITY20 — 20% off all challenges</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">Email</span>
+            <span class="brand-row-value">sv@hybridfunding.co</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">Facebook</span>
+            <span class="brand-row-value">"Hybrid Funding" (618385581367963)</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">TikTok</span>
+            <span class="brand-row-value">@hybridfunding</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">Content</span>
+            <span class="brand-row-value">Challenge promos, UNITY20 drops, funded trader spotlights</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRADE HYBRID -->
+      <div class="brand-block brand-th">
+        <div class="brand-header">
+          <div class="brand-name" style="color: var(--green);">Trade Hybrid</div>
+          <div class="brand-tagline">Community · Education · Trading Culture</div>
+        </div>
+        <div class="brand-body">
+          <div class="brand-row">
+            <span class="brand-row-label">Role</span>
+            <span class="brand-row-value">The community hub. Where traders grow together.</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">Sites</span>
+            <span class="brand-row-value">tradehybrid.club · thehybridzone.club</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">Facebook</span>
+            <span class="brand-row-value">"Trade Hybrid" (103511682351970)</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">YouTube</span>
+            <span class="brand-row-value">@tradehybrid</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">Google Biz</span>
+            <span class="brand-row-value">"Trade Hybrid" (verified)</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">Content</span>
+            <span class="brand-row-value">Hybrid Trader Chronicles, education, community posts</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">⚠️ Pending</span>
+            <span class="brand-row-value" style="color: var(--yellow);">Community PIT token needed for GHL posts</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- META SV / SUESS VILLIANO -->
+      <div class="brand-block brand-sv">
+        <div class="brand-header">
+          <div class="brand-name" style="color: var(--orange);">SV · Suess Villiano</div>
+          <div class="brand-tagline">The Personal Brand · AI Avatar · Mentor Identity</div>
+        </div>
+        <div class="brand-body">
+          <div class="brand-row">
+            <span class="brand-row-label">Role</span>
+            <span class="brand-row-value">The face. The voice. The authority that attracts everything else.</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">Instagram</span>
+            <span class="brand-row-value">@smartsystems_</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">YouTube</span>
+            <span class="brand-row-value">@suessvilliano</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">LinkedIn</span>
+            <span class="brand-row-value">Jamaur Johnson</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">Facebook</span>
+            <span class="brand-row-value">"Jamaur SV Johnson" · "Suess Villiano"</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">Avatar ID</span>
+            <span class="brand-row-value" style="color: var(--cyan);">872aba25a4da419d982d180df7ad156a</span>
+          </div>
+          <div class="brand-row">
+            <span class="brand-row-label">Content</span>
+            <span class="brand-row-value">90-day daily scripts, mindset, SV mentor voice</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT ROUTING -->
+    <div style="margin-top: 36px;">
+      <div class="section-label" style="margin-bottom: 16px;">How Content Routes Across Brands</div>
+      <div class="card" style="overflow-x: auto;">
+        <table class="rev-table" style="min-width: 600px;">
+          <thead>
+            <tr>
+              <th>Content Type</th>
+              <th>Primary Brand</th>
+              <th>Also Posts To</th>
+              <th>Command</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlight">
+              <td>SV Daily Scripts (Days 1–90)</td>
+              <td>Meta SV</td>
+              <td>Trade Hybrid</td>
+              <td><code style="color: var(--cyan); font-size: 12px;">python3 dispatch.py --brand sv_daily --day N</code></td>
+            </tr>
+            <tr>
+              <td>Hybrid Trader Chronicles</td>
+              <td>Trade Hybrid</td>
+              <td>—</td>
+              <td><code style="color: var(--cyan); font-size: 12px;">python3 dispatch.py --brand chronicles</code></td>
+            </tr>
+            <tr>
+              <td>Challenge Promos / UNITY20</td>
+              <td>Hybrid Funding</td>
+              <td>—</td>
+              <td><code style="color: var(--cyan); font-size: 12px;">python3 dispatch.py --brand prop_firm</code></td>
+            </tr>
+            <tr>
+              <td>General Trading Education</td>
+              <td>Trade Hybrid</td>
+              <td>Meta SV</td>
+              <td><code style="color: var(--cyan); font-size: 12px;">python3 dispatch.py --brand trader_content</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     CONTENT ENGINE
+════════════════════════════════════ -->
+<div id="content" class="section">
+  <div class="container">
+    <div class="section-label">Section 03</div>
+    <div class="section-title">The Content Engine</div>
+    <p class="section-intro">90 days of daily scripts, written, organized by pillar, and ready to push through the production pipeline. This is the backbone of your entire marketing operation.</p>
+
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="stat-num">90</div>
+        <div class="stat-label">Days Scripted</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">37</div>
+        <div class="stat-label">Videos Assembled</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">71</div>
+        <div class="stat-label">Voice Files</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">40+</div>
+        <div class="stat-label">B-Roll Clips</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Beat Tracks</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top: 8px;">
+      <div class="card">
+        <div class="card-title">Campaign Calendar</div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Campaign Start</span><strong>April 15, 2026</strong></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Today (Day 6)</span><strong>April 20, 2026</strong></div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 6.7%;"></div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Scripts written</span><strong>90 / 90 days</strong></div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Voice generated</span><strong>37 / 90 days</strong></div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 41%;"></div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Videos assembled</span><strong>37 / 90 days</strong></div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 41%;"></div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Approved by you</span><strong>7 / 90 days</strong></div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 7.8%; background: linear-gradient(90deg, var(--green), #86efac);"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Each Day's Script Package (5 Files)</div>
+        <div class="brand-row">
+          <span class="brand-row-label">vox_ready.txt</span>
+          <span class="brand-row-value">Clean voiceover script → feeds VoxCPM & HeyGen</span>
+        </div>
+        <div class="brand-row">
+          <span class="brand-row-label">short.txt</span>
+          <span class="brand-row-value">Hook / message / punchline for short-form posts</span>
+        </div>
+        <div class="brand-row">
+          <span class="brand-row-label">long.txt</span>
+          <span class="brand-row-value">Full-length article / long-form content</span>
+        </div>
+        <div class="brand-row">
+          <span class="brand-row-label">social.txt</span>
+          <span class="brand-row-value">Tweets + Instagram caption + YouTube title & tags</span>
+        </div>
+        <div class="brand-row">
+          <span class="brand-row-label">broll_prompts.txt</span>
+          <span class="brand-row-value">5 cinematic video prompts for Veo 3 / Seedance</span>
+        </div>
+        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06);">
+          <div class="card-title" style="font-size: 11px; margin-bottom: 8px;">Beat Assignment by Pillar</div>
+          <p style="font-size: 13px;"><strong style="color: var(--purple-light);">Mindset</strong> → motivational_rise_01 / _02 (alternate) &nbsp;|&nbsp; <strong style="color: var(--cyan);">Discipline</strong> → dark_cinematic_01 / _02</p>
+          <p style="font-size: 13px; margin-top: 4px;"><strong style="color: var(--green);">Strategy</strong> → focus_ambient_01 &nbsp;|&nbsp; <strong style="color: var(--orange);">Reality</strong> → dark_cinematic</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 90-day topic snapshot -->
+    <div style="margin-top: 28px;">
+      <div class="card">
+        <div class="card-title">Confirmed 90-Day Topic Map (Mindset Pillar — Days 1–14)</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; margin-top: 8px;">
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong style="color: var(--white);">Day 01</strong> — Mind is the leak: psychology costs more than losses</div>
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong style="color: var(--white);">Day 02</strong> — The best trade you do not take: discipline of inaction</div>
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong style="color: var(--white);">Day 03</strong> — Fear as information, not instruction</div>
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong style="color: var(--white);">Day 04</strong> — Patience: fewest trades, most profit</div>
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong style="color: var(--white);">Day 05</strong> — Trading as a psychological laboratory</div>
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong style="color: var(--white);">Day 06</strong> — Evidence-based confidence: track record before belief</div>
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong style="color: var(--white);">Day 07</strong> — The solo journey: work in silence, results speak</div>
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong style="color: var(--white);">Day 08</strong> — Identity shift: trader who follows plan vs. needs money today</div>
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong style="color: var(--white);">Day 09</strong> — Detachment from outcome: process score vs. P&L score</div>
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong style="color: var(--white);">Day 10</strong> — Pre-session ten minutes: sets the quality of everything after</div>
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong style="color: var(--white);">Day 11</strong> — The 20-minute rule after a loss</div>
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong style="color: var(--white);">Day 12</strong> — Why funded traders outlast solo traders: structure vs. willpower</div>
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong style="color: var(--white);">Day 13</strong> — Cost of one undisciplined session: how one bad day erases weeks</div>
+          <div style="font-size: 13px; color: var(--muted); padding: 6px 0;"><strong style="color: var(--white);">Day 14</strong> — Consistency as the only real edge</div>
+        </div>
+        <p style="margin-top: 16px; font-size: 13px; color: var(--muted);">Days 15–90 fully scripted across Discipline, Strategy, and Reality pillars. All scripts in <code style="color: var(--cyan);">/SV_Content_Engine/scripts/</code></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     PIPELINE
+════════════════════════════════════ -->
+<div id="pipeline" class="section">
+  <div class="container">
+    <div class="section-label">Section 04</div>
+    <div class="section-title">The Production Pipeline</div>
+    <p class="section-intro">How a script goes from words on a page to a finished video posted across all your social channels — automatically.</p>
+
+    <div class="pipeline">
+      <div class="pipe-step live">
+        <div class="pipe-icon">✍️</div>
+        <div class="pipe-label">Script</div>
+        <div class="pipe-detail">Claude writes 5 files · runs 8am daily</div>
+      </div>
+      <div class="pipe-step live">
+        <div class="pipe-icon">🎙️</div>
+        <div class="pipe-label">Voice</div>
+        <div class="pipe-detail">VoxCPM · localhost:8808 · FREE</div>
+      </div>
+      <div class="pipe-step live">
+        <div class="pipe-icon">☁️</div>
+        <div class="pipe-label">Upload</div>
+        <div class="pipe-detail">WAV → Cloudflare R2 → public URL</div>
+      </div>
+      <div class="pipe-step partial">
+        <div class="pipe-icon">🎥</div>
+        <div class="pipe-label">HeyGen</div>
+        <div class="pipe-detail">Talking head video · 30 credits loaded</div>
+      </div>
+      <div class="pipe-step live">
+        <div class="pipe-icon">🎬</div>
+        <div class="pipe-label">B-Roll</div>
+        <div class="pipe-detail">Veo 3 · Kling · broll_library/</div>
+      </div>
+      <div class="pipe-step live">
+        <div class="pipe-icon">⚡</div>
+        <div class="pipe-label">Assemble</div>
+        <div class="pipe-detail">ffmpeg · assemble_video.py · 9:16</div>
+      </div>
+      <div class="pipe-step live">
+        <div class="pipe-icon">📲</div>
+        <div class="pipe-label">Distribute</div>
+        <div class="pipe-detail">GHL → 8 social platforms</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top: 24px;">
+      <div class="card card-green">
+        <div class="card-title">✅ What's Automated (Runs Without You)</div>
+        <div class="brand-row"><span class="brand-row-label">Script writing</span><span class="brand-row-value">Daily 8am — Claude writes 5 files per day</span></div>
+        <div class="brand-row"><span class="brand-row-label">Voice cloning</span><span class="brand-row-value">VoxCPM generates .wav using your Harrahs voice sample</span></div>
+        <div class="brand-row"><span class="brand-row-label">B-roll generation</span><span class="brand-row-value">Veo 3 generates cinematic clips from broll_prompts.txt</span></div>
+        <div class="brand-row"><span class="brand-row-label">Video assembly</span><span class="brand-row-value">ffmpeg composites talking head + b-roll + subtitles</span></div>
+        <div class="brand-row"><span class="brand-row-label">Scheduling</span><span class="brand-row-value">GHL queues posts after you approve at localhost:4444</span></div>
+      </div>
+      <div class="card card-yellow">
+        <div class="card-title">⚡ What Needs You</div>
+        <div class="brand-row"><span class="brand-row-label">Approval</span><span class="brand-row-value">Visit localhost:4444, review a draft, click approve</span></div>
+        <div class="brand-row"><span class="brand-row-label">HeyGen credits</span><span class="brand-row-value">Top up at app.heygen.com when below 10 credits</span></div>
+        <div class="brand-row"><span class="brand-row-label">fal.ai balance</span><span class="brand-row-value">Top up for Seedance/Kling character shots (currently $0)</span></div>
+        <div class="brand-row"><span class="brand-row-label">GHL Trade Hybrid</span><span class="brand-row-value">Set up community PIT token for Trade Hybrid posts</span></div>
+        <div class="brand-row"><span class="brand-row-label">SV photo ID</span><span class="brand-row-value">Confirm correct talking photo in HeyGen for lip sync</span></div>
+      </div>
+    </div>
+
+    <!-- Hybrid Trader Chronicles -->
+    <div style="margin-top: 28px;">
+      <div class="card">
+        <div class="card-title">🎬 Hybrid Trader Chronicles — 8 Episodes (Weekly · Every Monday)</div>
+        <p style="margin-bottom: 16px;">A 60-second cinematic mini-series. Structure: Normal → Chaos → Normal. Music changes dynamically. Real numbers, real times. Warm color grading for "normal" moments, cool/desaturated for "chaos."</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px;">
+          <div class="badge badge-purple">Ep 1 — The Morning</div>
+          <div class="badge badge-purple">Ep 2 — The Cost</div>
+          <div class="badge badge-purple">Ep 3 — The Funded</div>
+          <div class="badge badge-purple">Ep 4 — The Mirror</div>
+          <div class="badge badge-purple">Ep 5 — The Line</div>
+          <div class="badge badge-purple">Ep 6 — The Call</div>
+          <div class="badge badge-purple">Ep 7 — The Monday</div>
+          <div class="badge badge-purple">Ep 8 — The Year</div>
+        </div>
+        <p style="margin-top: 12px; font-size: 13px; color: var(--muted);">Generate: <code style="color: var(--cyan);">python3.12 gen_chronicles.py --ep X</code> &nbsp;·&nbsp; Routes to: Trade Hybrid YouTube + Facebook</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     EMAIL MARKETING
+════════════════════════════════════ -->
+<div id="email" class="section">
+  <div class="container">
+    <div class="section-label">Section 05</div>
+    <div class="section-title">Email Marketing</div>
+    <p class="section-intro">Three weekly emails keep your audience warm, educated, and converting — every single week on autopilot. Sent from sv@hybridfunding.co via GHL.</p>
+
+    <div class="grid-3">
+      <!-- THE OFFER -->
+      <div class="email-card">
+        <div class="email-header">
+          <div class="email-day">Sunday · 5:00 PM EST</div>
+          <div class="email-name">THE OFFER 🔥</div>
+        </div>
+        <div class="email-body">
+          <div class="email-row">
+            <span class="email-row-label">Purpose</span>
+            <span class="email-row-value">Convert — weekly UNITY20 promo drop</span>
+          </div>
+          <div class="email-row">
+            <span class="email-row-label">Subject</span>
+            <span class="email-row-value">🔥 UNITY20 — 20% Off Every Challenge. Tonight Only.</span>
+          </div>
+          <div class="email-row">
+            <span class="email-row-label">Tone</span>
+            <span class="email-row-value">Urgent but not desperate. Calm confidence. Limited window.</span>
+          </div>
+          <div class="email-row">
+            <span class="email-row-label">CTA</span>
+            <span class="email-row-value">Challenge tiers + social proof + UNITY20 code</span>
+          </div>
+          <div class="email-row">
+            <span class="email-row-label">GHL Campaign</span>
+            <span class="email-row-value">SV_Weekly_Offer</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- THE BRIEF -->
+      <div class="email-card">
+        <div class="email-header">
+          <div class="email-day">Monday · 9:00 AM EST</div>
+          <div class="email-name">THE BRIEF 📈</div>
+        </div>
+        <div class="email-body">
+          <div class="email-row">
+            <span class="email-row-label">Purpose</span>
+            <span class="email-row-value">Value — weekly market intelligence for traders</span>
+          </div>
+          <div class="email-row">
+            <span class="email-row-label">Subject</span>
+            <span class="email-row-value">📈 The Week Ahead: [market headline]</span>
+          </div>
+          <div class="email-row">
+            <span class="email-row-label">Content</span>
+            <span class="email-row-value">4 market stories · SV take · economic calendar · this week's video · live market data</span>
+          </div>
+          <div class="email-row">
+            <span class="email-row-label">Tone</span>
+            <span class="email-row-value">Authoritative. Informative. SV mentor voice.</span>
+          </div>
+          <div class="email-row">
+            <span class="email-row-label">GHL Campaign</span>
+            <span class="email-row-value">SV_Monday_Brief</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- THE EDGE -->
+      <div class="email-card">
+        <div class="email-header">
+          <div class="email-day">Wednesday · 10:00 AM EST</div>
+          <div class="email-name">THE EDGE 🧠</div>
+        </div>
+        <div class="email-body">
+          <div class="email-row">
+            <span class="email-row-label">Purpose</span>
+            <span class="email-row-value">Educate — one concept, deep dive</span>
+          </div>
+          <div class="email-row">
+            <span class="email-row-label">Subject</span>
+            <span class="email-row-value">🧠 The Edge #N: [concept title]</span>
+          </div>
+          <div class="email-row">
+            <span class="email-row-label">Content</span>
+            <span class="email-row-value">Hook · Problem · The Shift · Application · Drill · Trader spotlight</span>
+          </div>
+          <div class="email-row">
+            <span class="email-row-label">Tone</span>
+            <span class="email-row-value">Teacher mode. SV voice. Practical, not theoretical.</span>
+          </div>
+          <div class="email-row">
+            <span class="email-row-label">GHL Campaign</span>
+            <span class="email-row-value">SV_Wednesday_Edge</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Welcome Sequence -->
+    <div style="margin-top: 28px;">
+      <div class="card">
+        <div class="card-title">Welcome Sequence (Automated — Triggers on Signup)</div>
+        <p style="margin-bottom: 16px;">Lead magnet: <strong>Free 5-Day Funded Trader Mindset Guide</strong> at hybridfunding.co/free-guide · CTA: "Join 10,000+ traders getting The Brief every Monday."</p>
+        <div class="timeline" style="margin-top: 12px;">
+          <div class="timeline-item done">
+            <div class="timeline-date">Day 0</div>
+            <div class="timeline-title">Welcome + Free Guide Delivery</div>
+            <div class="timeline-body">Immediate. They signed up. Deliver the value immediately.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Day 1</div>
+            <div class="timeline-title">Who SV Is + What Hybrid Funding Stands For</div>
+            <div class="timeline-body">The origin. The mission. Why this is different from every other prop firm.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Day 3</div>
+            <div class="timeline-title">Your First Challenge — What to Expect</div>
+            <div class="timeline-body">Practical. Rules, stages, what funded looks like. Reduces friction to purchase.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Day 5</div>
+            <div class="timeline-title">UNITY20 Introduction</div>
+            <div class="timeline-body">First soft pitch. 20% off. No pressure. Just the offer.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Day 7</div>
+            <div class="timeline-title">First Issue of The Edge</div>
+            <div class="timeline-body">They are now on the regular email schedule. The education never stops.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SOCIAL DISTRIBUTION
+════════════════════════════════════ -->
+<div id="social" class="section">
+  <div class="container">
+    <div class="section-label">Section 06</div>
+    <div class="section-title">Social Distribution</div>
+    <p class="section-intro">8 social channels across 3 brands, all managed through GoHighLevel (GHL) at alK3nxmaA2aXkCGUQlUT.</p>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title" style="color: var(--purple-light);">Hybrid Funding</div>
+        <div style="margin-top: 8px;">
+          <span class="social-tag">📘 Hybrid Funding Facebook</span>
+          <span class="social-tag">🎵 @hybridfunding TikTok</span>
+        </div>
+        <p style="margin-top: 12px; font-size: 13px;">Challenge promos · UNITY20 drops · Funded trader announcements. Conversion-focused content.</p>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color: var(--green);">Trade Hybrid</div>
+        <div style="margin-top: 8px;">
+          <span class="social-tag">📘 Trade Hybrid Facebook</span>
+          <span class="social-tag">▶️ @tradehybrid YouTube</span>
+          <span class="social-tag">🔍 Trade Hybrid Google Biz</span>
+        </div>
+        <p style="margin-top: 12px; font-size: 13px;">Chronicles · education · community content. Building a trader culture.</p>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color: var(--orange);">SV · Suess Villiano</div>
+        <div style="margin-top: 8px;">
+          <span class="social-tag">📸 @smartsystems_ IG</span>
+          <span class="social-tag">▶️ @suessvilliano YouTube</span>
+          <span class="social-tag">💼 Jamaur Johnson LinkedIn</span>
+          <span class="social-tag">📘 Suess Villiano Facebook</span>
+          <span class="social-tag">📘 Jamaur SV Johnson Facebook</span>
+        </div>
+        <p style="margin-top: 12px; font-size: 13px;">Daily SV scripts. Personal brand authority. Attracts traders to the entire ecosystem.</p>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px;" class="card">
+      <div class="card-title">Currently Scheduled Posts (as of April 20, 2026)</div>
+      <div style="overflow-x: auto;">
+        <table class="rev-table" style="min-width: 600px;">
+          <thead>
+            <tr><th>Day</th><th>Topic</th><th>Status</th><th>Scheduled (UTC)</th><th>Platforms</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Day 02</td><td>The Best Trade You Did Not Take</td><td><span class="badge badge-cyan">Scheduled</span></td><td>Apr 17 · 2:00 PM</td><td>HF FB · SV FB · IG · TikTok</td></tr>
+            <tr><td>Day 03</td><td>Fear Is Information</td><td><span class="badge badge-cyan">Scheduled</span></td><td>Apr 19 · 2:00 PM</td><td>HF FB · SV FB · IG · TikTok</td></tr>
+            <tr class="highlight"><td>Day 04</td><td>Why the Best Traders Take the Fewest Trades</td><td><span class="badge badge-cyan">Scheduled</span></td><td>Apr 20 · 12:27 PM</td><td>HF FB · SV FB · IG · TikTok</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top: 12px; font-size: 13px; color: var(--muted);">Queue managed at: <code style="color: var(--cyan);">localhost:4444</code> · Dispatch via: <code style="color: var(--cyan);">python3 dispatch.py --brand sv_daily --day N</code></p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     LIVE STATUS
+════════════════════════════════════ -->
+<div id="status" class="section">
+  <div class="container">
+    <div class="section-label">Section 07</div>
+    <div class="section-title">What's Live Right Now</div>
+    <p class="section-intro">A snapshot of every system and its current operational status as of April 20, 2026.</p>
+
+    <div class="grid-2">
+      <div>
+        <div class="action-item done" style="border-left-color: var(--green);">
+          <div class="action-num" style="color: var(--green);">✓</div>
+          <div>
+            <div class="action-title">VoxCPM Voice Engine</div>
+            <div class="action-body">LIVE at localhost:8808. Free, local, uses your Harrahs voice sample. Generated 71 voice files to date. Cost: $0.</div>
+          </div>
+        </div>
+        <div class="action-item done" style="border-left-color: var(--green);">
+          <div class="action-num" style="color: var(--green);">✓</div>
+          <div>
+            <div class="action-title">Dashboard</div>
+            <div class="action-body">LIVE at localhost:4444. Review drafts, approve content, trigger voice generation — all from one screen.</div>
+          </div>
+        </div>
+        <div class="action-item done" style="border-left-color: var(--green);">
+          <div class="action-num" style="color: var(--green);">✓</div>
+          <div>
+            <div class="action-title">Veo 3 B-Roll Generator</div>
+            <div class="action-body">OPERATIONAL. Billing confirmed on Google Cloud. Model: veo-3.1-fast-generate-preview. Generating 9:16 cinematic clips. 40+ clips in broll_library/.</div>
+          </div>
+        </div>
+        <div class="action-item done" style="border-left-color: var(--green);">
+          <div class="action-num" style="color: var(--green);">✓</div>
+          <div>
+            <div class="action-title">GoHighLevel (GHL) Connected</div>
+            <div class="action-body">Location alK3nxmaA2aXkCGUQlUT live. Hybrid Funding + Meta SV social accounts connected. Posts scheduling via dispatch.py.</div>
+          </div>
+        </div>
+        <div class="action-item done" style="border-left-color: var(--green);">
+          <div class="action-num" style="color: var(--green);">✓</div>
+          <div>
+            <div class="action-title">Cloudflare R2 Storage</div>
+            <div class="action-body">sv-content-engine bucket live. Voice files upload via upload_to_r2.sh → public URL for HeyGen.</div>
+          </div>
+        </div>
+        <div class="action-item done" style="border-left-color: var(--green);">
+          <div class="action-num" style="color: var(--green);">✓</div>
+          <div>
+            <div class="action-title">GitHub (Content Backup)</div>
+            <div class="action-body">github.com/SuessVilliano/sv-content-engine — all 90 scripts pushed. Force-pushed April 16.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="action-item" style="border-left-color: var(--yellow);">
+          <div class="action-num">⚡</div>
+          <div>
+            <div class="action-title">HeyGen (30 Credits Loaded)</div>
+            <div class="action-body">30 API credits cover Days 6–35. Days 1–37 talking head videos already assembled. Top up at app.heygen.com when credits run low. Avatar: sv_talking_photo_id 872aba25a4da419d982d180df7ad156a.</div>
+          </div>
+        </div>
+        <div class="action-item critical">
+          <div class="action-num">!</div>
+          <div>
+            <div class="action-title">fal.ai Balance Exhausted</div>
+            <div class="action-body">Seedance + Kling B-roll blocked. Top up at fal.ai/dashboard/billing. This affects character-shot B-roll (Prompts 4–5 in each day's broll_prompts.txt). Veo 3 environmental shots (Prompts 1–3) still generating fine.</div>
+          </div>
+        </div>
+        <div class="action-item" style="border-left-color: var(--yellow);">
+          <div class="action-num">⚡</div>
+          <div>
+            <div class="action-title">Trade Hybrid Community PIT Token</div>
+            <div class="action-body">GHL community posts to IBFpbsaJWl0qXeqB3jQA blocked. Get the token: GHL → Trade Hybrid sub-account → Settings → Private Integrations → New Integration. Add to .env as GHL_TRADE_HYBRID_PIT_TOKEN.</div>
+          </div>
+        </div>
+        <div class="action-item done" style="border-left-color: var(--green);">
+          <div class="action-num" style="color: var(--green);">✓</div>
+          <div>
+            <div class="action-title">Daily 8am Script Run (Scheduled)</div>
+            <div class="action-body">Claude runs every morning, checks the queue, writes any missing scripts, generates broll via Veo 3, sends iMessage status to liv8ent@gmail.com. Currently in STOP RULE — all 90 days scripted.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     ACTION ITEMS
+════════════════════════════════════ -->
+<div id="actions" class="section">
+  <div class="container">
+    <div class="section-label">Section 08</div>
+    <div class="section-title">Your Action Items</div>
+    <p class="section-intro">Everything that only you can do. Sorted by priority. Clear each one and the machine runs itself.</p>
+
+    <div class="action-item critical">
+      <div class="action-num">1</div>
+      <div>
+        <div class="action-title">Approve Daily Drafts at localhost:4444 — Do This Every Day</div>
+        <div class="action-body">This is the single most important daily action. Review the next draft, click approve, and the entire voice + video + posting chain fires automatically. Takes 5 minutes. Days 8–37 are assembled and waiting for your review.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">2</div>
+      <div>
+        <div class="action-title">Top Up fal.ai Balance for Seedance / Kling B-Roll</div>
+        <div class="action-body">Go to fal.ai/dashboard/billing. Even $50–100 generates significant B-roll. This unlocks character shots (SV in environment) for Prompts 4–5 in each day. Veo 3 handles Prompts 1–3 independently.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">3</div>
+      <div>
+        <div class="action-title">Set Up Trade Hybrid Community PIT Token in GHL</div>
+        <div class="action-body">GHL dashboard → Switch to Trade Hybrid sub-account → Settings → Private Integrations → Create new token. Copy it. Open the .env file in /SV_Content_Engine/ and add: GHL_TRADE_HYBRID_PIT_TOKEN=pit-[your token]. This unlocks Chronicles posts to the Trade Hybrid community.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">4</div>
+      <div>
+        <div class="action-title">Monitor HeyGen Credits (Currently 30 — Covers Through Day ~35)</div>
+        <div class="action-body">At app.heygen.com, check credit balance weekly. Top up before hitting zero. At current rate (1 credit per video), 30 credits = 30 days of talking head content. Plan ahead.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">5</div>
+      <div>
+        <div class="action-title">Activate the Email System in GHL</div>
+        <div class="action-body">The 3 weekly email templates (Sunday Offer, Monday Brief, Wednesday Edge) are built and ready. Set up the GHL campaigns SV_Weekly_Offer, SV_Monday_Brief, and SV_Wednesday_Edge. Turn on the automations. Tell Claude "set up my email campaigns in GHL" and we will do it together.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">6</div>
+      <div>
+        <div class="action-title">Build Your Email List — Lead Magnet Is Ready</div>
+        <div class="action-body">The "Free 5-Day Funded Trader Mindset Guide" lead magnet is designed. Get it built and live at hybridfunding.co/free-guide. Connect to GHL. Every subscriber enters the welcome sequence automatically. Your list is your most valuable asset — start building it now.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">7</div>
+      <div>
+        <div class="action-title">Post the sv.liv8.co Command Center to Your Dashboard</div>
+        <div class="action-body">This document should live at sv.liv8.co so you and any future team members can access it. Upload this HTML file to Cloudflare Pages or your hosting provider, point sv.liv8.co to it. Claude can walk you through it — just ask.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     REVENUE STREAMS
+════════════════════════════════════ -->
+<div id="revenue" class="section">
+  <div class="container">
+    <div class="section-label">Section 09</div>
+    <div class="section-title">Revenue Streams</div>
+    <p class="section-intro">How this business generates money — now and in the future. Multiple revenue lines reduce risk and compound growth.</p>
+
+    <div class="card" style="overflow-x: auto;">
+      <table class="rev-table" style="min-width: 700px;">
+        <thead>
+          <tr>
+            <th>Revenue Stream</th>
+            <th>Brand</th>
+            <th>Current Status</th>
+            <th>Scale Path</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="highlight">
+            <td>Challenge Passes (UNITY20 — 20% off)</td>
+            <td>Hybrid Funding</td>
+            <td><span class="badge badge-green">Active</span> — Selling now</td>
+            <td>Email list growth → more weekly drops → higher conversion rate</td>
+          </tr>
+          <tr>
+            <td>Funded Trader Payouts (split)</td>
+            <td>Hybrid Funding</td>
+            <td><span class="badge badge-green">Active</span> — Pipeline exists</td>
+            <td>More funded traders = more managed capital = more payout splits</td>
+          </tr>
+          <tr>
+            <td>Community Membership (Trade Hybrid)</td>
+            <td>Trade Hybrid</td>
+            <td><span class="badge badge-yellow">Building</span></td>
+            <td>Chronicles + education → paid community tier → recurring revenue</td>
+          </tr>
+          <tr>
+            <td>SV Mentorship / Coaching</td>
+            <td>Meta SV</td>
+            <td><span class="badge badge-yellow">Positioning</span></td>
+            <td>90 days of authority content → inbound coaching interest → high-ticket</td>
+          </tr>
+          <tr>
+            <td>Course / Digital Products</td>
+            <td>All 3</td>
+            <td><span class="badge badge-purple">Future</span></td>
+            <td>The Edge email concepts → packaged into a course on tradehybrid.club</td>
+          </tr>
+          <tr>
+            <td>Affiliate / Brand Partnerships</td>
+            <td>Meta SV</td>
+            <td><span class="badge badge-purple">Future</span></td>
+            <td>Audience reach (8 channels) → brand deals in trading/fintech space</td>
+          </tr>
+          <tr>
+            <td>White-label SV Content Engine</td>
+            <td>Meta SV / SV</td>
+            <td><span class="badge badge-purple">Future</span></td>
+            <td>License the AI content system to other prop firms or trading educators</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     ROADMAP
+════════════════════════════════════ -->
+<div id="roadmap" class="section-last">
+  <div class="container">
+    <div class="section-label">Section 10</div>
+    <div class="section-title">The Roadmap to $1B</div>
+    <p class="section-intro">This is not a dream. It is a sequence. Each phase builds the infrastructure for the next. You are already in Phase 1.</p>
+
+    <div class="grid-2">
+      <div>
+        <div class="timeline">
+          <div class="timeline-item current">
+            <div class="timeline-date">Phase 1 · Now → Q3 2026</div>
+            <div class="timeline-title">Build the Authority Machine</div>
+            <div class="timeline-body">Complete the 90-day content campaign. Post daily. Build email list to 10,000+. Establish SV as the credible voice in the prop trading space. Challenge pass revenue funds operations.</div>
+          </div>
+          <div class="timeline-item pending">
+            <div class="timeline-date">Phase 2 · Q3 2026 → Q1 2027</div>
+            <div class="timeline-title">Monetize the Community</div>
+            <div class="timeline-body">Launch Trade Hybrid paid membership. Deploy The Edge email as a cornerstone education product. Begin high-ticket mentorship. Target: $50K+ monthly recurring revenue.</div>
+          </div>
+          <div class="timeline-item pending">
+            <div class="timeline-date">Phase 3 · 2027</div>
+            <div class="timeline-title">Scale the Prop Firm</div>
+            <div class="timeline-body">More funded traders, larger accounts, higher payout volume. Expand to more markets. Partner with institutional liquidity. Brand recognition drives inbound deal flow. Target: $500K+ monthly.</div>
+          </div>
+          <div class="timeline-item pending">
+            <div class="timeline-date">Phase 4 · 2028+</div>
+            <div class="timeline-title">The Billion-Dollar Infrastructure</div>
+            <div class="timeline-body">White-label the SV Content Engine to other prop firms. License the Hybrid Funding model. SV becomes a media company + financial firm. Portfolio of trading brands, funded accounts, and digital products.</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-title">The Infrastructure Already Built</div>
+          <p>In 5 days (April 15–20, 2026) you built what most businesses take months to create:</p>
+          <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 6px;">
+            <div style="display: flex; gap: 10px; font-size: 13px;"><span style="color: var(--green);">✓</span><span><strong>90 days</strong> of professional content scripts</span></div>
+            <div style="display: flex; gap: 10px; font-size: 13px;"><span style="color: var(--green);">✓</span><span><strong>AI voice cloning</strong> of your voice — free, local, forever</span></div>
+            <div style="display: flex; gap: 10px; font-size: 13px;"><span style="color: var(--green);">✓</span><span><strong>Automated video pipeline</strong> from script to assembled final</span></div>
+            <div style="display: flex; gap: 10px; font-size: 13px;"><span style="color: var(--green);">✓</span><span><strong>8 social channels</strong> connected and scheduling</span></div>
+            <div style="display: flex; gap: 10px; font-size: 13px;"><span style="color: var(--green);">✓</span><span><strong>3 brand identities</strong> with distinct voice and audience</span></div>
+            <div style="display: flex; gap: 10px; font-size: 13px;"><span style="color: var(--green);">✓</span><span><strong>3 weekly email templates</strong> designed and ready</span></div>
+            <div style="display: flex; gap: 10px; font-size: 13px;"><span style="color: var(--green);">✓</span><span><strong>Daily AI assistant</strong> running every morning at 8am</span></div>
+            <div style="display: flex; gap: 10px; font-size: 13px;"><span style="color: var(--green);">✓</span><span><strong>Cinematic B-roll</strong> generating via Veo 3 (40+ clips)</span></div>
+            <div style="display: flex; gap: 10px; font-size: 13px;"><span style="color: var(--green);">✓</span><span><strong>8-episode video series</strong> scripted (Hybrid Trader Chronicles)</span></div>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-text">"The system works. The content is ready. The only thing between where you are and where you are going is execution — one day at a time."</div>
+          <div class="quote-attr">— Built for Jamaur Johnson · SV · April 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TECH STACK REFERENCE -->
+    <div style="margin-top: 36px;">
+      <div class="section-label" style="margin-bottom: 16px;">Full Infrastructure Reference</div>
+      <div class="card" style="overflow-x: auto;">
+        <table class="rev-table" style="min-width: 600px;">
+          <thead><tr><th>System</th><th>URL / Location</th><th>Purpose</th><th>Cost</th></tr></thead>
+          <tbody>
+            <tr><td>Dashboard</td><td>localhost:4444 · dashboard.py</td><td>Review + approve content</td><td>Free</td></tr>
+            <tr><td>VoxCPM Voice</td><td>localhost:8808 · voxcpm-env</td><td>Clone your voice to WAV</td><td>Free</td></tr>
+            <tr><td>HeyGen</td><td>api.heygen.com · 30 credits</td><td>Lip-sync talking head video</td><td>~$1/credit</td></tr>
+            <tr><td>Veo 3 B-Roll</td><td>Google AI Studio · gemini API</td><td>Cinematic environmental clips</td><td>~$0.50/clip</td></tr>
+            <tr><td>Kling 1.6 Pro</td><td>fal.ai (needs top-up)</td><td>Primary B-roll (cheaper)</td><td>~$0.25/5s</td></tr>
+            <tr><td>Cloudflare R2</td><td>sv-content-engine bucket</td><td>Store + serve voice/video files</td><td>~$0/mo</td></tr>
+            <tr><td>GoHighLevel</td><td>alK3nxmaA2aXkCGUQlUT</td><td>Email + social scheduling</td><td>Subscription</td></tr>
+            <tr><td>GitHub</td><td>SuessVilliano/sv-content-engine</td><td>Script backup + version control</td><td>Free</td></tr>
+            <tr><td>Content Engine</td><td>/Documents/SV_Content_Engine/</td><td>All local files, scripts, voice, video</td><td>Free</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-logo">SV <span>·</span> Hybrid Funding</div>
+  <p>Business Command Center · Last updated April 20, 2026 · Built by Claude for Jamaur Johnson</p>
+  <p style="margin-top: 6px;">sv.liv8.co · hybridfunding.co · tradehybrid.club</p>
+</div>
+
+</body>
+</html>
